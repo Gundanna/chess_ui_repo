@@ -195,7 +195,7 @@ async function getBestMove() {
   const fen = "startpos"; // replace later with real FEN
 
   try {
-    const res = await fetch("https://YOUR-RENDER-APP.onrender.com/bestmove", {
+    const res = await fetch("https://chess-repo.onrender.com", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
