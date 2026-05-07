@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BetaZero</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+/* =========================
+   GLOBAL
+========================= */
+
+body {
+  margin: 0;
+  font-family: system-ui, Arial;
+  background: #111;
+  color: white;
+  overflow: hidden;
+}
+
+/* =========================
+   TOP BAR (Chess.com style)
+========================= */
+
+.topbar {
+  height: 60px;
+  background: #1b1b1b;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  border-bottom: 1px solid #333;
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+  color: #81b64c;
+}
+
+.top-actions {
+  display: flex;
+  gap: 15px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* =========================
+   MAIN LAYOUT
+========================= */
+
+.container {
+  display: flex;
+  height: calc(100vh - 60px);
+}
+
+/* =========================
+   LEFT PANEL
+========================= */
+
+.left-panel {
+  width: 260px;
+  background: #171717;
+  border-right: 1px solid #333;
+  padding: 15px;
+}
+
+.menu-item {
+  padding: 12px;
+  margin-bottom: 10px;
+  background: #222;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.menu-item:hover {
+  background: #2c2c2c;
+}
+
+/* =========================
+   BOARD AREA
+========================= */
+
+.board-area {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.board {
+  width: 650px;
+  height: 650px;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  border: 5px solid #333;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 40px rgba(0,0,0,0.6);
+}
+
+.square {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 52px;
+}
+
+.light { background: #f0d9b5; }
+.dark { background: #b58863; }
+
+/* =========================
+   RIGHT PANEL (Chess.com analysis)
+========================= */
+
+.right-panel {
+  width: 320px;
+  background: #171717;
+  border-left: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-section {
+  padding: 15px;
+  border-bottom: 1px solid #333;
+}
+
+.title {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-bottom: 10px;
+}
+
+/* Eval bar */
+.eval-bar {
+  height: 200px;
+  width: 20px;
+  background: #333;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+.eval-fill {
+  height: 50%;
+  background: #81b64c;
+}
+
+/* Moves */
+.moves {
+  font-family: monospace;
+  font-size: 14px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px;
+  background: #81b64c;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn:hover {
+  background: #9bd66a;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">BetaZero</div>
+
+  <div class="top-actions">
+    <div>Play</div>
+    <div>Analysis</div>
+    <div>Engine</div>
+    <div>Profile</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- LEFT -->
+  <div class="left-panel">
+    <div class="menu-item">⚡ Play AI</div>
+    <div class="menu-item">📊 Analysis</div>
+    <div class="menu-item">🤖 Stockfish Engine</div>
+    <div class="menu-item">⚙ Settings</div>
+  </div>
+
+  <!-- BOARD -->
+  <div class="board-area">
+    <div class="board" id="board"></div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right-panel">
+
+    <div class="panel-section">
+      <div class="title">ENGINE EVALUATION</div>
+      <div class="eval-bar">
+        <div class="eval-fill" id="eval"></div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="title">MOVES</div>
+      <div class="moves" id="moves">
+        1. e4 e5<br>
+        2. Nf3 Nc6<br>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <button class="btn">New Game</button>
+      <button class="btn">Analyze</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+
+// =========================
+// BOARD RENDER
+// =========================
+
+const board = document.getElementById("board");
+
+const pieces = {
+  r:"♜", n:"♞", b:"♝", q:"♛", k:"♚", p:"♟",
+  R:"♖", N:"♘", B:"♗", Q:"♕", K:"♔", P:"♙"
+};
+
+const start = [
+["r","n","b","q","k","b","n","r"],
+["p","p","p","p","p","p","p","p"],
+["","","","","","","",""],
+["","","","","","","",""],
+["","","","","","","",""],
+["","","","","","","",""],
+["P","P","P","P","P","P","P","P"],
+["R","N","B","Q","K","B","N","R"]
+];
+
+for (let r=0;r<8;r++){
+  for (let c=0;c<8;c++){
+
+    const sq = document.createElement("div");
+    sq.className = "square " + ((r+c)%2 ? "dark":"light");
+
+    const p = start[r][c];
+    sq.textContent = p ? pieces[p] : "";
+
+    board.appendChild(sq);
+  }
+}
+
+// =========================
+// ENGINE BAR SIMULATION
+// =========================
+
+let evalValue = 50;
+
+setInterval(() => {
+  evalValue += (Math.random() - 0.5) * 10;
+  evalValue = Math.max(0, Math.min(100, evalValue));
+
+  document.getElementById("eval").style.height = evalValue + "%";
+}, 1000);
+
+</script>
+
+</body>
+</html>
