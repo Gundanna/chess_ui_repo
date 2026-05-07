@@ -6,23 +6,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-
-/* =========================
-   GLOBAL
-========================= */
-
 body {
   margin: 0;
-  font-family: system-ui, Arial;
+  font-family: Arial;
   background: #111;
   color: white;
-  overflow: hidden;
 }
 
-/* =========================
-   TOP BAR (Chess.com style)
-========================= */
-
+/* TOP BAR */
 .topbar {
   height: 60px;
   background: #1b1b1b;
@@ -34,207 +25,128 @@ body {
 }
 
 .logo {
+  color: #81b64c;
   font-size: 20px;
   font-weight: bold;
-  color: #81b64c;
 }
 
-.top-actions {
-  display: flex;
-  gap: 15px;
-  font-size: 14px;
-  opacity: 0.8;
-}
-
-/* =========================
-   MAIN LAYOUT
-========================= */
-
+/* LAYOUT */
 .container {
   display: flex;
   height: calc(100vh - 60px);
 }
 
-/* =========================
-   LEFT PANEL
-========================= */
-
-.left-panel {
-  width: 260px;
+/* LEFT */
+.left {
+  width: 220px;
   background: #171717;
-  border-right: 1px solid #333;
-  padding: 15px;
+  padding: 10px;
 }
 
-.menu-item {
+.item {
   padding: 12px;
-  margin-bottom: 10px;
   background: #222;
-  border-radius: 8px;
+  margin-bottom: 10px;
   cursor: pointer;
+  border-radius: 6px;
 }
 
-.menu-item:hover {
-  background: #2c2c2c;
+.item:hover {
+  background: #333;
 }
 
-/* =========================
-   BOARD AREA
-========================= */
-
-.board-area {
+/* BOARD */
+.center {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
 }
 
 .board {
-  width: 650px;
-  height: 650px;
+  width: 640px;
+  height: 640px;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
-  border: 5px solid #333;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 0 40px rgba(0,0,0,0.6);
+  border: 4px solid #333;
 }
 
 .square {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 52px;
+  font-size: 48px;
 }
 
 .light { background: #f0d9b5; }
 .dark { background: #b58863; }
 
-/* =========================
-   RIGHT PANEL (Chess.com analysis)
-========================= */
-
-.right-panel {
-  width: 320px;
+/* RIGHT PANEL */
+.right {
+  width: 300px;
   background: #171717;
-  border-left: 1px solid #333;
-  display: flex;
-  flex-direction: column;
-}
-
-.panel-section {
-  padding: 15px;
-  border-bottom: 1px solid #333;
-}
-
-.title {
-  font-size: 14px;
-  opacity: 0.7;
-  margin-bottom: 10px;
-}
-
-/* Eval bar */
-.eval-bar {
-  height: 200px;
-  width: 20px;
-  background: #333;
-  border-radius: 10px;
-  overflow: hidden;
-  margin: 10px 0;
-}
-
-.eval-fill {
-  height: 50%;
-  background: #81b64c;
-}
-
-/* Moves */
-.moves {
-  font-family: monospace;
-  font-size: 14px;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-/* Buttons */
-.btn {
   padding: 10px;
+  border-left: 1px solid #333;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
   background: #81b64c;
   border: none;
-  border-radius: 6px;
   color: white;
   cursor: pointer;
-  margin-top: 10px;
+  border-radius: 6px;
 }
 
-.btn:hover {
+button:hover {
   background: #9bd66a;
 }
 
+.moves {
+  font-family: monospace;
+  font-size: 14px;
+  margin-top: 10px;
+}
 </style>
 </head>
 
 <body>
 
-<!-- TOP BAR -->
 <div class="topbar">
   <div class="logo">BetaZero</div>
-
-  <div class="top-actions">
-    <div>Play</div>
-    <div>Analysis</div>
-    <div>Engine</div>
-    <div>Profile</div>
-  </div>
+  <div>Play • Analyze • Engine</div>
 </div>
 
 <div class="container">
 
-  <!-- LEFT -->
-  <div class="left-panel">
-    <div class="menu-item">⚡ Play AI</div>
-    <div class="menu-item">📊 Analysis</div>
-    <div class="menu-item">🤖 Stockfish Engine</div>
-    <div class="menu-item">⚙ Settings</div>
+  <div class="left">
+    <div class="item">Play AI</div>
+    <div class="item">Analysis</div>
+    <div class="item">Engine</div>
   </div>
 
-  <!-- BOARD -->
-  <div class="board-area">
+  <div class="center">
     <div class="board" id="board"></div>
   </div>
 
-  <!-- RIGHT -->
-  <div class="right-panel">
+  <div class="right">
+    <h3>Engine Control</h3>
 
-    <div class="panel-section">
-      <div class="title">ENGINE EVALUATION</div>
-      <div class="eval-bar">
-        <div class="eval-fill" id="eval"></div>
-      </div>
-    </div>
+    <button onclick="getBestMove()">Get Best Move</button>
+    <button onclick="newGame()">New Game</button>
 
-    <div class="panel-section">
-      <div class="title">MOVES</div>
-      <div class="moves" id="moves">
-        1. e4 e5<br>
-        2. Nf3 Nc6<br>
-      </div>
-    </div>
-
-    <div class="panel-section">
-      <button class="btn">New Game</button>
-      <button class="btn">Analyze</button>
-    </div>
-
+    <div class="moves" id="moves">Moves will appear here...</div>
   </div>
+
 </div>
 
 <script>
 
 // =========================
-// BOARD RENDER
+// BOARD
 // =========================
 
 const board = document.getElementById("board");
@@ -244,7 +156,7 @@ const pieces = {
   R:"♖", N:"♘", B:"♗", Q:"♕", K:"♔", P:"♙"
 };
 
-const start = [
+let position = [
 ["r","n","b","q","k","b","n","r"],
 ["p","p","p","p","p","p","p","p"],
 ["","","","","","","",""],
@@ -255,31 +167,66 @@ const start = [
 ["R","N","B","Q","K","B","N","R"]
 ];
 
-for (let r=0;r<8;r++){
-  for (let c=0;c<8;c++){
+function renderBoard() {
+  board.innerHTML = "";
 
-    const sq = document.createElement("div");
-    sq.className = "square " + ((r+c)%2 ? "dark":"light");
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
 
-    const p = start[r][c];
-    sq.textContent = p ? pieces[p] : "";
+      const sq = document.createElement("div");
+      sq.className = "square " + ((r+c)%2 ? "dark":"light");
 
-    board.appendChild(sq);
+      const p = position[r][c];
+      sq.textContent = p ? pieces[p] : "";
+
+      board.appendChild(sq);
+    }
+  }
+}
+
+renderBoard();
+
+// =========================
+// STOCKFISH API CALL
+// =========================
+
+async function getBestMove() {
+
+  const fen = "startpos"; // replace later with real FEN
+
+  try {
+    const res = await fetch("https://YOUR-RENDER-APP.onrender.com/bestmove", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        fen: fen,
+        skill: 10
+      })
+    });
+
+    const data = await res.json();
+
+    document.getElementById("moves").innerHTML =
+      "Best Move: " + data.move;
+
+    console.log("Stockfish:", data);
+
+  } catch (err) {
+    console.error("Error:", err);
+    alert("Backend not connected!");
   }
 }
 
 // =========================
-// ENGINE BAR SIMULATION
+// RESET GAME
 // =========================
 
-let evalValue = 50;
-
-setInterval(() => {
-  evalValue += (Math.random() - 0.5) * 10;
-  evalValue = Math.max(0, Math.min(100, evalValue));
-
-  document.getElementById("eval").style.height = evalValue + "%";
-}, 1000);
+function newGame() {
+  renderBoard();
+  document.getElementById("moves").innerHTML = "New game started";
+}
 
 </script>
 
