@@ -192,7 +192,7 @@ renderBoard();
 
 async function getBestMove() {
 
-  const fen = "startpos"; // replace later with real FEN
+  fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
   try {
     const res = await fetch("https://chess-repo.onrender.com/bestmove", {
